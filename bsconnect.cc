@@ -25,12 +25,8 @@ static double normalCurvature(const BSSurface &s, double u, double v, const Vect
   double M = n * der[1][1];
   double N = n * der[0][2];
   auto [du, dv] = inSystem(der[1][0], der[0][1], dir);
-  if (std::abs(du) < std::abs(dv)) {
-    double x = du / dv;
-    return (L * x * x + 2 * M * x + N) / (E * x * x + 2 * F * x + G);
-  }
-  double x = dv / du;
-  return (L + 2 * M * x + N * x * x) / (E + 2 * F * x + G * x * x);
+  double du2 = du * du, dudv = du * dv, dv2 = dv * dv;
+  return (L * du2 + 2 * M * dudv + N * dv2) / (E * du2 + 2 * F * dudv + G * dv2);
 }
 
 static void connectC0(const BSSurface &master, BSSurface &slave, size_t fixed) {
@@ -88,7 +84,6 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
     VectorMatrix der;
     slave.eval(0, v, 1, der);
     auto d1 = der[1][0];
-    double d1_sq = d1 * d1;
 
     double k_master = -normalCurvature(master, 0, v, d1);
     double k_slave  = normalCurvature(slave,  0, v, d1);
@@ -102,7 +97,7 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
         A(k, span - p + j - fixed) = coeff_v[j];
 
     slave.eval(0, v, 1, der);
-    b.block<1,3>(k, 0) = VecMap((n * (k_master - k_slave) * d1_sq * base).data());
+    b.block<1,3>(k, 0) = VecMap((n * (k_master - k_slave) * d1.normSqr() * base).data());
   }
 
   Eigen::MatrixXd x = A.fullPivLu().solve(b);
