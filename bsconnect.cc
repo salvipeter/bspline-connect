@@ -25,7 +25,7 @@ static double normalCurvature(const BSSurface &s, double u, double v, const Vect
   double M = n * der[1][1];
   double N = n * der[0][2];
   auto [du, dv] = inSystem(der[1][0], der[0][1], dir);
-  if (du < dv) {
+  if (std::abs(du) < std::abs(dv)) {
     double x = du / dv;
     return (L * x * x + 2 * M * x + N) / (E * x * x + 2 * F * x + G);
   }
@@ -90,7 +90,7 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
     auto d1 = der[1][0];
     double d1_sq = d1 * d1;
 
-    double k_master = normalCurvature(master, 0, v, d1);
+    double k_master = -normalCurvature(master, 0, v, d1);
     double k_slave  = normalCurvature(slave,  0, v, d1);
     auto n = surfaceNormal(slave, 0, v);
 

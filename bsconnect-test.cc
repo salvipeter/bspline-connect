@@ -64,8 +64,7 @@ void writeVector(std::ostream &os, const Vector3D &v) {
   writeType<float>(os, v[2]);
 }
 
-void writeSTL(const std::vector<BSSurface> &surfaces, std::string filename,
-                     size_t resolution = 50) {
+void writeSTL(const std::vector<BSSurface> &surfaces, std::string filename, size_t resolution) {
   size_t n = surfaces.size();
   std::ofstream f(filename, std::ios::binary);
   f.exceptions(std::ios::failbit | std::ios::badbit);
@@ -147,6 +146,6 @@ int main(int argc, char **argv) {
 
   // For debugging
   slave.reverseV();
-  writeSTL({ master, slave }, "output.stl");
+  writeSTL({ master, slave }, "output.stl", 100);
   writeControlNet({ master, slave }, "output.obj");
 }
