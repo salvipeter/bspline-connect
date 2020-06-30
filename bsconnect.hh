@@ -7,7 +7,7 @@
 // Proceedings of the 14th ACM Symposium on Solid and Physical Modeling, pp. 195-200, 2010.
 
 // Here `master' and `slave' are assumed to
-// - have the same degree and knot vector in the `u' parametric direction
+// - have the same degree and the same clamped knot vector in the `v' parametric direction
 // - parameterized (in both directions) in the range [0,1]
 // - share a (possibly C0-discontinuous) common boundary at `u=0'
 // - the `v'-orientation is compatible, i.e., C0-continuity is `M(0, v) = S(0, v)'
