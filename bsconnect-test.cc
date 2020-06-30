@@ -130,7 +130,7 @@ void writeControlNet(const std::vector<BSSurface> &surfaces, std::string filenam
 
 int main(int argc, char **argv) {
   if (argc < 3 || argc > 4) {
-    std::cerr << "Usage: " << argv[0] << " master.bss slave.bss [resolution]" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <master.bss> <slave.bss> [resolution]" << std::endl;
     return 1;
   }
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
   auto master = readBSS(argv[1]);
   auto slave = readBSS(argv[2]);
 
-  connectBSplineSurfaces(master, slave, true, true, true, resolution);
+  connectBSplineSurfaces(master, slave, true, true, true, { 0, 0, 0 }, resolution);
 
   writeBSS(slave, "output.bss");
 
