@@ -104,6 +104,30 @@ void writeSTL(const std::vector<BSSurface> &surfaces, std::string filename,
   }
 }
 
+void writeControlNet(const std::vector<BSSurface> &surfaces, std::string filename) {
+  std::ofstream f(filename);
+  f.exceptions(std::ios::failbit | std::ios::badbit);
+  std::vector<size_t> start_indices;
+  size_t index = 1;
+  for (const auto &s : surfaces) {
+    start_indices.push_back(index);
+    for (const auto &p : s.controlPoints())
+      f << "v " << p << std::endl;
+    index += s.controlPoints().size();
+  }
+  for (size_t i = 0; i < surfaces.size(); ++i) {
+    const auto &s = surfaces[i];
+    size_t base = start_indices[i];
+    auto [nu, nv] = s.numControlPoints();
+    for (size_t j = 0; j < nu; ++j)
+      for (size_t k = 1; k < nv; ++k)
+        f << "l " << base + j * nv + k - 1 << ' ' << base + j * nv + k << std::endl;
+    for (size_t j = 1; j < nu; ++j)
+      for (size_t k = 0; k < nv; ++k)
+        f << "l " << base + (j - 1) * nv + k << ' ' << base + j * nv + k << std::endl;
+  }
+}
+
 int main(int argc, char **argv) {
   if (argc < 3 || argc > 4) {
     std::cerr << "Usage: " << argv[0] << " master.bss slave.bss [resolution]" << std::endl;
@@ -121,6 +145,8 @@ int main(int argc, char **argv) {
 
   writeBSS(slave, "output.bss");
 
+  // For debugging
   slave.reverseV();
   writeSTL({ master, slave }, "output.stl");
+  writeControlNet({ master, slave }, "output.obj");
 }
