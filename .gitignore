@@ -3,3 +3,4 @@
 *.o
 bsconnect-test
 output.*
+results/*

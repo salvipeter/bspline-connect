@@ -120,5 +120,7 @@ int main(int argc, char **argv) {
   connectBSplineSurfaces(master, slave, true, true, true, resolution);
 
   writeBSS(slave, "output.bss");
+
+  slave.reverseV();
   writeSTL({ master, slave }, "output.stl");
 }
