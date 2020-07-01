@@ -52,7 +52,7 @@ static void connectG1(const BSSurface &master, BSSurface &slave, size_t fixed, s
     auto n = surfaceNormal(master, 0, v);
 
     DoubleVector coeff_v;
-    double span = slave.basisV().findSpan(v);
+    size_t span = slave.basisV().findSpan(v);
     slave.basisV().basisFunctions(span, v, coeff_v);
     for (size_t j = 0; j <= p; ++j)
       if (span - p + j >= fixed && span - p + j < m - fixed)
@@ -90,7 +90,7 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
     auto n = surfaceNormal(slave, 0, v);
 
     DoubleVector coeff_v;
-    double span = slave.basisV().findSpan(v);
+    size_t span = slave.basisV().findSpan(v);
     slave.basisV().basisFunctions(span, v, coeff_v);
     for (size_t j = 0; j <= p; ++j)
       if (span - p + j >= fixed && span - p + j < m - fixed)
