@@ -86,7 +86,7 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
     auto d1 = der[1][0];
 
     double k_master = -normalCurvature(master, 0, v, d1);
-    double k_slave  = normalCurvature(slave,  0, v, d1);
+    double k_slave  =  normalCurvature(slave,  0, v, d1);
     auto n = surfaceNormal(slave, 0, v);
 
     DoubleVector coeff_v;
@@ -96,7 +96,6 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
       if (span - p + j >= fixed && span - p + j < m - fixed)
         A(k, span - p + j - fixed) = coeff_v[j];
 
-    slave.eval(0, v, 1, der);
     b.block<1,3>(k, 0) = VecMap((n * (k_master - k_slave) * d1.normSqr() * base).data());
   }
 
