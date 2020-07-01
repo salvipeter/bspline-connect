@@ -10,6 +10,8 @@ static Vector3D surfaceNormal(const BSSurface &s, double u, double v) {
   return (der[1][0] ^ der[0][1]).normalize();
 }
 
+// `p` (supposedly in the `(u,v)` plane) is written as a combination of `u` and `v`.
+// Returns `{ a, b }` s.t. `u * a + v * b = p`.
 static std::pair<double, double> inSystem(const Vector3D &u, const Vector3D &v, const Vector3D &p) {
   return { p * u / u.normSqr(), p * v / v.normSqr() };
 }
