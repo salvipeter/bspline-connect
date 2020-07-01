@@ -45,7 +45,7 @@ static void connectG1(const BSSurface &master, BSSurface &slave, size_t fixed, s
   slave.basisU().basisFunctionDerivatives(slave.basisU().findSpan(0.0), 0.0, 1, der_u);
   double dbase = der_u[1][1];
 
-  Eigen::MatrixXd A(resolution, m - fixed * 2);
+  Eigen::MatrixXd A = Eigen::MatrixXd::Zero(resolution, m - fixed * 2);
   Eigen::MatrixXd b(resolution, 3);
   using VecMap = Eigen::Map<const Eigen::Vector3d>;
 
@@ -77,7 +77,7 @@ static void connectG2(const BSSurface &master, BSSurface &slave, size_t fixed, s
   const auto &knots = slave.basisU().knots();
   double base = (knots[q+1] - knots[2]) * (knots[q+2] - knots[2]) / (q * (q - 1));
 
-  Eigen::MatrixXd A(resolution, m - fixed * 2);
+  Eigen::MatrixXd A = Eigen::MatrixXd::Zero(resolution, m - fixed * 2);
   Eigen::MatrixXd b(resolution, 3);
   using VecMap = Eigen::Map<const Eigen::Vector3d>;
 
