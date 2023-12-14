@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iterator>
 
 #include "bsconnect.hh"
 
@@ -51,6 +52,25 @@ void writeBSS(const BSSurface &s, std::string filename) {
 
   for (const auto &p : s.controlPoints())
     f << p << std::endl;
+}
+
+void writeQDS(const std::vector<BSSurface> &surfaces, std::string filename) {
+  std::ofstream f(filename);
+  f.exceptions(std::ios::failbit | std::ios::badbit);
+  f << surfaces.size() << std::endl;
+  for (const auto &s : surfaces) {
+    f << s.basisU().degree() << ' ' << s.basisV().degree() << std::endl;
+    f << s.basisU().knots().size() << ' ';
+    std::copy(s.basisU().knots().begin(), s.basisU().knots().end(),
+              std::ostream_iterator<double>(f, " "));
+    f << std::endl;
+    f << s.basisV().knots().size() << ' ';
+    std::copy(s.basisV().knots().begin(), s.basisV().knots().end(),
+              std::ostream_iterator<double>(f, " "));
+    f << std::endl;
+    std::copy(s.controlPoints().begin(), s.controlPoints().end(),
+              std::ostream_iterator<Point3D>(f, "\n"));
+  }
 }
 
 template<typename T>
@@ -128,19 +148,41 @@ void writeControlNet(const std::vector<BSSurface> &surfaces, std::string filenam
 }
 
 int main(int argc, char **argv) {
-  if (argc < 3 || argc > 4) {
-    std::cerr << "Usage: " << argv[0] << " <master.bss> <slave.bss> [resolution]" << std::endl;
+  if (argc < 3 || argc > 5) {
+    std::cerr << "Usage: " << argv[0] << " <master.bss> <slave.bss> [resolution] [halvings]"
+              << std::endl;
     return 1;
   }
 
   size_t resolution = 100;
-  if (argc == 4)
+  if (argc >= 4)
     resolution = std::atoi(argv[3]);
+
+  size_t halvings = 0;
+  if (argc ==  5)
+    halvings = std::atoi(argv[4]);
 
   auto master = readBSS(argv[1]);
   auto slave = readBSS(argv[2]);
 
-  connectBSplineSurfaces(master, slave, true, true, true, { 0, 0, 0 }, resolution);
+  // Halve all V knot intervals to get more degrees of freedom
+  auto master2 = master;
+  for (size_t i = 0; i < halvings; ++i) {
+    const auto &knots = slave.basisV().knots();
+    DoubleVector to_insert;
+    double last = knots.front();
+    for (auto k : knots)
+      if (k != last) {
+        to_insert.push_back((last + k) / 2);
+        last = k;
+      }
+    for (auto k : to_insert) {
+      master2 = master2.insertKnotV(k, 1);
+      slave = slave.insertKnotV(k, 1);
+    }
+  }
+
+  connectBSplineSurfaces(master2, slave, true, true, true, { 0, 0, 0 }, resolution);
 
   writeBSS(slave, "output.bss");
 
@@ -148,4 +190,5 @@ int main(int argc, char **argv) {
   slave.reverseV();
   writeSTL({ master, slave }, "output.stl", 100);
   writeControlNet({ master, slave }, "output.obj");
+  writeQDS({ master, slave }, "output.qds");
 }
